@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>键盘练习游戏 - 一年级</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- 上半部分：显示区域 -->
+        <div class="display-area">
+            <div class="header-bar">
+                <div class="score-panel">
+                    <div class="score-item">
+                        <span class="score-label">⭐ 得分</span>
+                        <span class="score-value" id="score">0</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="score-label">🔥 连击</span>
+                        <span class="score-value" id="combo">0</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="score-label">✅ 正确</span>
+                        <span class="score-value" id="correct">0</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="score-label">❌ 错误</span>
+                        <span class="score-value" id="wrong">0</span>
+                    </div>
+                </div>
+                <div class="mode-selectors">
+                    <!-- 学科模式 -->
+                    <div class="mode-selector">
+                        <button class="mode-btn active" data-mode="pinyin">🇨🇳 拼音</button>
+                        <button class="mode-btn" data-mode="english">🔤 英语</button>
+                    </div>
+                    <!-- 出题顺序模式 -->
+                    <div class="mode-selector">
+                        <button class="mode-btn active" data-order="sequential">📖 顺序</button>
+                        <button class="mode-btn" data-order="shuffle">🔀 混杂</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 单元/Unit 标签 -->
+            <div class="unit-badge" id="unitBadge"></div>
+
+            <!-- 游戏内容显示区 -->
+            <div class="content-display">
+                <div class="level-badge" id="levelBadge">第 1 关</div>
+                
+                <!-- 拼音模式 -->
+                <div class="pinyin-mode" id="pinyinMode">
+                    <div class="word-show" id="wordShow"></div>
+                    <div class="hint-text" id="hintText"></div>
+                    <div class="pinyin-input-area">
+                        <span class="input-label">请输入拼音：</span>
+                        <span class="pinyin-display" id="pinyinDisplay"></span>
+                        <span class="cursor">|</span>
+                    </div>
+                </div>
+
+                <!-- 英语模式 -->
+                <div class="english-mode hidden" id="englishMode">
+                    <div class="word-card">
+                        <div class="word-meaning" id="wordMeaning"></div>
+                        <div class="word-image-container">
+                            <div class="word-image" id="wordImage"></div>
+                            <!-- 动画元素层 -->
+                            <div class="anim-layer" id="animLayer"></div>
+                        </div>
+                    </div>
+                    <div class="english-input-area">
+                        <span class="input-label">请拼写单词：</span>
+                        <span class="word-display" id="wordDisplay"></span>
+                        <span class="cursor">|</span>
+                    </div>
+                </div>
+
+                <!-- 反馈动画 -->
+                <div class="feedback-overlay" id="feedbackOverlay"></div>
+            </div>
+
+            <!-- 进度条 -->
+            <div class="progress-section">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">0 / 10</div>
+            </div>
+        </div>
+
+        <!-- 下半部分：虚拟键盘区域 -->
+        <div class="keyboard-area">
+            <div class="keyboard" id="keyboard"></div>
+        </div>
+    </div>
+
+    <!-- 关卡完成弹窗 -->
+    <div class="modal-overlay hidden" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-icon" id="modalIcon">🎉</div>
+            <h2 class="modal-title" id="modalTitle">恭喜过关！</h2>
+            <div class="modal-stats" id="modalStats"></div>
+            <div class="modal-buttons">
+                <button class="btn-primary" id="nextLevelBtn">下一关</button>
+                <button class="btn-secondary" id="retryBtn">再玩一次</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
