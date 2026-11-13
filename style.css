@@ -613,6 +613,11 @@ body {
     color: #64748b;
 }
 
+/* 练习模式：提示词常亮显示，亮度与测验模式 pending-char 一致 */
+.hint-char {
+    color: #64748b;
+}
+
 .typed-char {
     color: #6366f1;
 }

@@ -127,6 +127,7 @@ const KEYBOARD_LAYOUT = [
 let gameState = {
     mode: 'pinyin',       // 'pinyin' 或 'english'
     order: 'sequential',  // 'sequential' 顺序 / 'shuffle' 混杂
+    practiceMode: false,  // false=测验模式（提示词逐字符显现），true=练习模式（提示词常亮显示）
     level: 1,
     score: 0,
     combo: 0,
@@ -547,14 +548,29 @@ function showPinyinWord() {
     const word = gameState.currentWord;
     document.getElementById('wordShow').textContent = word.word;
     document.getElementById('hintText').textContent = word.hint ? `📝 ${word.hint}` : '';
-    document.getElementById('pinyinDisplay').textContent = '';
+
+    if (gameState.practiceMode) {
+        // 练习模式：提示词常亮显示，调用 updateDisplay 让未输入字符也亮起来
+        updateDisplay();
+    } else {
+        // 测验模式：初始清空，随输入逐字符显现
+        document.getElementById('pinyinDisplay').textContent = '';
+    }
 }
 
 function showEnglishWord() {
     const word = gameState.currentWord;
     document.getElementById('wordMeaning').textContent = word.meaning;
     document.getElementById('wordImage').textContent = word.emoji;
-    document.getElementById('wordDisplay').textContent = '';
+
+    if (gameState.practiceMode) {
+        // 练习模式：提示词常亮显示
+        updateDisplay();
+    } else {
+        // 测验模式：初始清空
+        document.getElementById('wordDisplay').textContent = '';
+    }
+
     // 播放图片进入动画
     playImageEnterAnim();
 }
@@ -572,7 +588,10 @@ function updateDisplay() {
                 displayHTML += `<span class="wrong-char">${target[i]}</span>`;
             }
         } else {
-            displayHTML += `<span class="pending-char">${target[i]}</span>`;
+            // 练习模式：未输入字符也常亮显示（hint-char 深色）
+            // 测验模式：未输入字符灰色提示（pending-char）
+            const cls = gameState.practiceMode ? 'hint-char' : 'pending-char';
+            displayHTML += `<span class="${cls}">${target[i]}</span>`;
         }
     }
 
@@ -762,6 +781,22 @@ document.querySelectorAll('.mode-btn[data-order]').forEach(btn => {
 
         renderKeyboard();
         startGame();
+        playKeySound('normal');
+    });
+});
+
+// 练习/测验模式切换
+document.querySelectorAll('.mode-btn[data-practice]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.mode-btn[data-practice]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        gameState.practiceMode = btn.dataset.practice === 'true';
+
+        // 切换模式时刷新当前显示即可，无需重置关卡/分数
+        gameState.currentInput = '';
+        gameState.isProcessing = false;
+        updateDisplay();
         playKeySound('normal');
     });
 });
