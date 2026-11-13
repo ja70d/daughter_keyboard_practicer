@@ -466,17 +466,31 @@ function playFailAnim() {
 
 // ===== 游戏逻辑 =====
 
+// 按 unit 字段把数据分组，每组作为一关
+function getGroupedByUnit(data) {
+    const groups = [];
+    let currentGroup = null;
+    for (const item of data) {
+        if (!currentGroup || currentGroup.unit !== item.unit) {
+            currentGroup = { unit: item.unit, words: [] };
+            groups.push(currentGroup);
+        }
+        currentGroup.words.push(item);
+    }
+    return groups;
+}
+
 function getWordsForLevel() {
     const data = gameState.mode === 'pinyin' ? PINYIN_DATA : ENGLISH_DATA;
+    const groups = getGroupedByUnit(data);
 
-    // 每关 totalWords 个词，按关卡偏移切片
-    // 第 N 关取索引 [ (N-1)*totalWords , N*totalWords )
-    const startIdx = (gameState.level - 1) * gameState.totalWords;
-    let pool = data.slice(startIdx, startIdx + gameState.totalWords);
-
-    // 如果当前关卡数据用完了（pool 为空或不足），从头循环取
-    if (pool.length === 0) {
-        pool = data.slice(0, gameState.totalWords);
+    // 第 N 关取第 N 个 unit 组（level 从 1 开始，index = level - 1）
+    let pool;
+    if (gameState.level <= groups.length) {
+        pool = [...groups[gameState.level - 1].words];
+    } else {
+        // 所有单元都练完了，循环回到第一个单元
+        pool = [...groups[(gameState.level - 1) % groups.length].words];
     }
 
     // 顺序模式：保持教材原顺序
@@ -489,13 +503,14 @@ function getWordsForLevel() {
     }
     // sequential 模式：保持原始顺序（即教材单元顺序）
 
-    return pool.slice(0, gameState.totalWords);
+    return pool;
 }
 
 function startGame() {
     gameState.currentIndex = 0;
     gameState.currentInput = '';
     gameState.usedWords = getWordsForLevel();
+    gameState.totalWords = gameState.usedWords.length; // 按单元动态设定
     gameState.isProcessing = false;
 
     document.getElementById('score').textContent = gameState.score;
@@ -793,10 +808,26 @@ document.querySelectorAll('.mode-btn[data-practice]').forEach(btn => {
 
         gameState.practiceMode = btn.dataset.practice === 'true';
 
-        // 切换模式时刷新当前显示即可，无需重置关卡/分数
+        // 切换模式时不重置关卡/分数，但需按新模式刷新显示
         gameState.currentInput = '';
         gameState.isProcessing = false;
-        updateDisplay();
+
+        const pinyinEl = document.getElementById('pinyinDisplay');
+        const englishEl = document.getElementById('wordDisplay');
+        const isPinyinMode = gameState.mode === 'pinyin';
+
+        if (gameState.practiceMode) {
+            // 练习模式：显示常亮提示
+            updateDisplay();
+        } else {
+            // 测验模式：完全清空提示区
+            if (isPinyinMode) {
+                pinyinEl.textContent = '';
+            } else {
+                englishEl.textContent = '';
+            }
+        }
+
         playKeySound('normal');
     });
 });
